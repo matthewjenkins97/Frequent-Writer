@@ -12,10 +12,9 @@
  *****************************************************************************/
 
 #include <iostream>
+//#include "cs111.h"
 #include "list.h"
 using namespace std;
-
-void loadCorpus(int argc, char** argv, int& prefixLength, int& textLength, string& corpus);
 
 /*
 To generate text, assume a string of characters of prefixLength has been defined. 
@@ -35,6 +34,6 @@ int main(int argc, char** argv) {
   int prefixLength;
   int textLength;
   string corpus;
-  loadCorpus(argc, argv, prefixLength, textLength, corpus);
+  // loadCorpus(argc, argv, prefixLength, textLength, corpus);
   // put your code here
 }

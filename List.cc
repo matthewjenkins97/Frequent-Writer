@@ -16,6 +16,22 @@
 #include "list.h"
 using namespace std;
 
+//HERE BE PRIVATE FUNCTIONS
+
+// Purpose: Recursively deletes Node objects.
+//
+// Pre: None.
+// Post: None.
+void List::deleteNodes(List::Node::Node* Head_ptr) {
+  if (Head_ptr == NULL) {
+    return;
+  }
+  deleteNodes(Head_ptr->Next_ptr);
+  delete Head_ptr;
+}
+
+//HERE BE PUBLIC FUNCTIONS
+
 // Purpose: Creates a node class.
 //
 // Pre: None.
@@ -54,9 +70,14 @@ void List::insertBefore(const Item& item) {
     return;
   }
   if (currentDefined()) {
-    Node* Temp_ptr = new Node(item,
-                              Current_ptr->Prev_ptr->Next_ptr,
-                              Current_ptr->Prev_ptr);
+    if (length() == 1) {
+      Node* Temp_ptr = new Node(item, NULL, Current_ptr);
+      Current_ptr->Prev_ptr = Temp_ptr;
+      Head_ptr = Temp_ptr;
+      Current_ptr = Temp_ptr;
+      return;
+    }
+    Node* Temp_ptr = new Node(item, Current_ptr->Prev_ptr, Current_ptr);
     Current_ptr->Prev_ptr->Next_ptr = Temp_ptr;
     Current_ptr->Prev_ptr = Temp_ptr;
     Current_ptr = Temp_ptr;
@@ -70,15 +91,20 @@ void List::insertBefore(const Item& item) {
 // Post: The item has been placed in the list and becomes the current item
 void List::insertAfter(const Item& item) {
   if (empty()) {
-    new Node(item);
+    Current_ptr = new Node(item);
+    Head_ptr = Current_ptr;
     return;
   }
   if (currentDefined()) {
-    Node* Temp_ptr = new Node(item,
-                              Current_ptr->Next_ptr,
-                              Current_ptr->Next_ptr->Prev_ptr);
-    Current_ptr->Next_ptr = Temp_ptr;
+    if (length() == 1) {
+      Node* Temp_ptr = new Node(item, Current_ptr, NULL);
+      Current_ptr->Next_ptr = Temp_ptr;
+      Current_ptr = Temp_ptr;
+      return;
+    }
+    Node* Temp_ptr = new Node(item, Current_ptr, Current_ptr->Next_ptr);
     Current_ptr->Next_ptr->Prev_ptr = Temp_ptr;
+    Current_ptr->Next_ptr = Temp_ptr;
     Current_ptr = Temp_ptr;
     return;
   }
@@ -147,7 +173,7 @@ void List::advance() {
 // Pre: None.
 // Post: Returns true if the current location is defined, false otherwise.
 bool List::currentDefined() const {
-  return !(Current_ptr == NULL);
+  return Current_ptr != NULL;
 }
 
 // Purpose: Returns the number of items in the list
@@ -156,9 +182,9 @@ bool List::currentDefined() const {
 // Post: The number of items in the list is returned
 size_t List::length() const {
   size_t count = 0;
-  for (Node* tally_ptr = Head_ptr; 
-       tally_ptr != NULL; 
-       tally_ptr = tally_ptr->Next_ptr) {
+  for (Node* ptr = Head_ptr; 
+       ptr != NULL; 
+       ptr = ptr->Next_ptr) {
     count++;
   }
   return count;
@@ -190,19 +216,5 @@ void List::display(ostream& s) const {
     s << ptr->Value << ", ";
   }
   s << "]";
-}
-
-//HERE BE PRIVATE FUNCTIONS
-
-// Purpose: Recursively deletes Node objects.
-//
-// Pre: None.
-// Post: None.
-void deleteNodes(List::Node::Node* Head_ptr) {
-  if (Head_ptr->Next_ptr == NULL) {
-    return;
-  }
-  deleteNodes(Head_ptr->Next_ptr);
-  delete Head_ptr;
 }
 
