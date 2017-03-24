@@ -18,7 +18,8 @@ using namespace std;
 
 //HERE BE PRIVATE FUNCTIONS
 
-// Purpose: Recursively deletes Node objects.
+// Purpose: Recursively deletes Node objects and Head_ptr.
+// (used for destructing).
 //
 // Pre: None.
 // Post: None.
@@ -69,19 +70,27 @@ void List::insertBefore(const Item& item) {
     Head_ptr = Current_ptr;
     return;
   }
+  Node* new_ptr = new Node(item);
   if (currentDefined()) {
-    if (length() == 1) {
-      Node* Temp_ptr = new Node(item, NULL, Current_ptr);
-      Current_ptr->Prev_ptr = Temp_ptr;
-      Head_ptr = Temp_ptr;
-      Current_ptr = Temp_ptr;
-      return;
+    if (Current_ptr->Prev_ptr != NULL) {
+      Node* currentPrev_ptr = Current_ptr->Prev_ptr;
+      Current_ptr->Prev_ptr = new_ptr;
+      currentPrev_ptr->Next_ptr = new_ptr;
+      new_ptr->Next_ptr = Current_ptr;
+      new_ptr->Prev_ptr = currentPrev_ptr;
+      if (Current_ptr == Head_ptr) {
+        Head_ptr = new_ptr;
+      }
+      Current_ptr = new_ptr;
     }
-    Node* Temp_ptr = new Node(item, Current_ptr->Prev_ptr, Current_ptr);
-    Current_ptr->Prev_ptr->Next_ptr = Temp_ptr;
-    Current_ptr->Prev_ptr = Temp_ptr;
-    Current_ptr = Temp_ptr;
-    return;
+    else {
+      Current_ptr->Prev_ptr = new_ptr;
+      new_ptr->Next_ptr = Current_ptr;
+      if (Current_ptr == Head_ptr) {
+        Head_ptr = new_ptr;
+      }
+      Current_ptr = new_ptr;
+    }
   }
 }
 
@@ -95,18 +104,21 @@ void List::insertAfter(const Item& item) {
     Head_ptr = Current_ptr;
     return;
   }
+  Node* new_ptr = new Node(item);
   if (currentDefined()) {
-    if (length() == 1) {
-      Node* Temp_ptr = new Node(item, Current_ptr, NULL);
-      Current_ptr->Next_ptr = Temp_ptr;
-      Current_ptr = Temp_ptr;
-      return;
+    if (Current_ptr->Next_ptr != NULL) {
+      Node* currentNext_ptr = Current_ptr->Next_ptr;
+      Current_ptr->Next_ptr = new_ptr;
+      currentNext_ptr->Prev_ptr = new_ptr;
+      new_ptr->Prev_ptr = Current_ptr;
+      new_ptr->Next_ptr = currentNext_ptr;
+      Current_ptr = new_ptr;
     }
-    Node* Temp_ptr = new Node(item, Current_ptr, Current_ptr->Next_ptr);
-    Current_ptr->Next_ptr->Prev_ptr = Temp_ptr;
-    Current_ptr->Next_ptr = Temp_ptr;
-    Current_ptr = Temp_ptr;
-    return;
+    else {
+      Current_ptr->Next_ptr = new_ptr;
+      new_ptr->Prev_ptr = Current_ptr;
+      Current_ptr = new_ptr;
+    }
   }
 }
 
@@ -127,23 +139,33 @@ List::Item List::retrieve() const {
 //       is undefined
 void List::remove() {
   assert(currentDefined());
-  if (Current_ptr->Prev_ptr == NULL) {
-    Node* Temp_ptr = Current_ptr->Next_ptr;
-    Current_ptr->Next_ptr->Prev_ptr = NULL;
-    delete Current_ptr;
-    Current_ptr = Temp_ptr;
+  Node* Victim_ptr = Current_ptr;
+  if (Victim_ptr->Next_ptr == NULL && Victim_ptr->Prev_ptr == NULL) {
+    delete Victim_ptr;
+    Head_ptr = NULL;
+    Current_ptr = NULL;
     return;
   }
-  if (Current_ptr->Next_ptr == NULL) {
+  else if (Victim_ptr->Next_ptr == NULL) {
     Current_ptr->Prev_ptr->Next_ptr = NULL;
-    delete Current_ptr;
+    Current_ptr = NULL;
+    delete Victim_ptr;
     return;
   }
-  Node* Temp_ptr = Current_ptr->Next_ptr;
-  Current_ptr->Next_ptr->Prev_ptr = Current_ptr->Prev_ptr;
-  Current_ptr->Prev_ptr->Next_ptr = Current_ptr->Next_ptr;
-  delete Current_ptr;
-  Current_ptr = Temp_ptr;
+  else if (Victim_ptr->Prev_ptr == NULL) {
+    Current_ptr->Next_ptr->Prev_ptr = NULL;
+    Head_ptr = Current_ptr->Next_ptr;
+    Current_ptr = Head_ptr;
+    delete Victim_ptr;
+    return;
+  }
+  else {
+    Current_ptr->Next_ptr->Prev_ptr = Current_ptr->Prev_ptr;
+    Current_ptr->Prev_ptr->Next_ptr = Current_ptr->Next_ptr;
+    Current_ptr = Current_ptr->Next_ptr;
+    delete Victim_ptr;
+    return;
+  }
 }
 
 // Purpose: Set the current location to the beginning of the list
@@ -165,6 +187,9 @@ void List::head() {
 // Post: The current location points to the next location in the list
 void List::advance() {
   assert(currentDefined());
+  if (Current_ptr->Next_ptr == NULL) {
+    head();
+  }
   Current_ptr = Current_ptr->Next_ptr;
 }
 
@@ -203,7 +228,12 @@ bool List::empty() const {
 // Pre: None.
 // Post: This list becomes a copy of list
 void List::copy(const List& list) {
-
+  deleteNodes(Head_ptr);
+  Head_ptr = NULL;
+  Current_ptr = NULL;
+  for (Node* temp = list.Head_ptr; temp != NULL; temp = temp->Next_ptr) {
+    insertAfter(temp->Value);
+  }
 }
 
 // Purpose: Output the list to the stream.
@@ -212,9 +242,19 @@ void List::copy(const List& list) {
 // Post: None.
 void List::display(ostream& s) const {
   s << "[";
-  for (Node* ptr = Head_ptr; ptr != NULL; ptr = ptr->Next_ptr) {
-    s << ptr->Value << ", ";
+  if (empty()) {
+    s << "]";
+    s << '\n';
+    return;
   }
-  s << "]";
+  for (Node* ptr = Head_ptr; ptr != NULL; ptr = ptr->Next_ptr) {
+    if (ptr->Next_ptr == NULL) {
+      s << ptr->Value << "]";
+    }
+    else {
+      s << ptr->Value << ", ";
+    }
+  }
+  s << '\n';
 }
 

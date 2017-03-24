@@ -35,7 +35,7 @@ class List {
     // Purpose: Inserts an item before the current item 
     //
     // Pre: Current item is defined, or list is empty
-    // Post: The ite mhas been placed in the list and becomes the current item
+    // Post: The item has been placed in the list and becomes the current item
     void insertBefore(const Item& item);
 
     // Purpose: Inserts an item after the current item 
