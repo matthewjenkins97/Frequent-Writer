@@ -12,11 +12,11 @@
 
 #include <iostream>
 #include <assert.h>
-//#include <cs111.h>
+#include <cs111.h>
 #include "list.h"
 using namespace std;
 
-//HERE BE PRIVATE FUNCTIONS
+//Private Functions
 
 // Purpose: Recursively deletes Node objects and Head_ptr.
 // (used for destructing).
@@ -31,7 +31,7 @@ void List::deleteNodes(List::Node::Node* Head_ptr) {
   delete Head_ptr;
 }
 
-//HERE BE PUBLIC FUNCTIONS
+//Public Functions
 
 // Purpose: Creates a node class.
 //
@@ -188,7 +188,7 @@ void List::head() {
 void List::advance() {
   assert(currentDefined());
   if (Current_ptr->Next_ptr == NULL) {
-    head();
+    Current_ptr = NULL;
   }
   Current_ptr = Current_ptr->Next_ptr;
 }
