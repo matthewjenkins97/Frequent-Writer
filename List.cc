@@ -10,10 +10,10 @@
  *
  *****************************************************************************/
 
+#include "List.h"
 #include <iostream>
 #include <assert.h>
 #include <cs111.h>
-#include "list.h"
 using namespace std;
 
 //Private Functions
@@ -23,12 +23,12 @@ using namespace std;
 //
 // Pre: None.
 // Post: None.
-void List::deleteNodes(List::Node::Node* Head_ptr) {
-  if (Head_ptr == NULL) {
+void List::deleteNodes(List::Node* start_ptr) {
+  if (start_ptr == NULL) {
     return;
   }
-  deleteNodes(Head_ptr->Next_ptr);
-  delete Head_ptr;
+  deleteNodes(start_ptr->Next_ptr);
+  delete start_ptr;
 }
 
 //Public Functions
@@ -37,7 +37,7 @@ void List::deleteNodes(List::Node::Node* Head_ptr) {
 //
 // Pre: None.
 // Post: Node is created.
-List::Node::Node(const Item& value, Node* prev_ptr, Node* next_ptr) {
+List::Node::Node(const List::Item& value, Node* prev_ptr, Node* next_ptr) {
   Value = value;
   Prev_ptr = prev_ptr;
   Next_ptr = next_ptr;
@@ -64,31 +64,50 @@ List::~List() {
 //
 // Pre: Current item is defined, or list is empty
 // Post: The item has been placed in the list and becomes the current item
-void List::insertBefore(const Item& item) {
+void List::insertBefore(const List::Item& item) {
+
+  //when list is empty, make a new node and make head_ptr = the current
   if (empty()) {
     Current_ptr = new Node(item);
     Head_ptr = Current_ptr;
     return;
   }
+
+  //else, make a new pointer
   Node* new_ptr = new Node(item);
   if (currentDefined()) {
+
+    //if there's no lefthand neighbor, make current's previous point to 
+    //the new pointer, make current's previous's next point to new pointer,
+    //then connect new to current and the one before current
     if (Current_ptr->Prev_ptr != NULL) {
       Node* currentPrev_ptr = Current_ptr->Prev_ptr;
       Current_ptr->Prev_ptr = new_ptr;
       currentPrev_ptr->Next_ptr = new_ptr;
       new_ptr->Next_ptr = Current_ptr;
       new_ptr->Prev_ptr = currentPrev_ptr;
+
+      //if current is also the head, make the head the new pointer
       if (Current_ptr == Head_ptr) {
         Head_ptr = new_ptr;
       }
+
+      //map to current
       Current_ptr = new_ptr;
     }
+
+    //if there's no righthand neighbor, make current's previous point to new
+    //point new's next to current
     else {
       Current_ptr->Prev_ptr = new_ptr;
       new_ptr->Next_ptr = Current_ptr;
+
+      //if current is also the head, make the head the new pointer
       if (Current_ptr == Head_ptr) {
         Head_ptr = new_ptr;
       }
+      
+      //map to current
       Current_ptr = new_ptr;
     }
   }
@@ -98,25 +117,39 @@ void List::insertBefore(const Item& item) {
 //
 // Pre: Current item is defined, or list is empty
 // Post: The item has been placed in the list and becomes the current item
-void List::insertAfter(const Item& item) {
+void List::insertAfter(const List::Item& item) {
+  //when list is empty
   if (empty()) {
     Current_ptr = new Node(item);
     Head_ptr = Current_ptr;
     return;
   }
+
+  //make a new pointer 
   Node* new_ptr = new Node(item);
   if (currentDefined()) {
+    
+    //if current's next is null, make current's next point to new, make 
+    //current's next's previous point to new, then map new to current and 
+    //current's neighbor
     if (Current_ptr->Next_ptr != NULL) {
       Node* currentNext_ptr = Current_ptr->Next_ptr;
       Current_ptr->Next_ptr = new_ptr;
       currentNext_ptr->Prev_ptr = new_ptr;
       new_ptr->Prev_ptr = Current_ptr;
       new_ptr->Next_ptr = currentNext_ptr;
+      
+      //map to current
       Current_ptr = new_ptr;
     }
+    
+    //if current's previous is null, make current's next point to new, 
+    //and map new to current
     else {
       Current_ptr->Next_ptr = new_ptr;
       new_ptr->Prev_ptr = Current_ptr;
+
+      //map to current
       Current_ptr = new_ptr;
     }
   }
@@ -140,18 +173,27 @@ List::Item List::retrieve() const {
 void List::remove() {
   assert(currentDefined());
   Node* Victim_ptr = Current_ptr;
+
+  //if the victim has no neighbors, delete it and set head and current
+  //to null
   if (Victim_ptr->Next_ptr == NULL && Victim_ptr->Prev_ptr == NULL) {
     delete Victim_ptr;
     Head_ptr = NULL;
     Current_ptr = NULL;
     return;
   }
+  
+  //if the victim has no righthand neighbor, point current's previous's next
+  //to null, set current to null and delete it
   else if (Victim_ptr->Next_ptr == NULL) {
     Current_ptr->Prev_ptr->Next_ptr = NULL;
     Current_ptr = NULL;
     delete Victim_ptr;
     return;
   }
+
+  //if the victim has no lefthand neighbor, point current's next's previous
+  //to null, set the head to current's next, set current to head and delete
   else if (Victim_ptr->Prev_ptr == NULL) {
     Current_ptr->Next_ptr->Prev_ptr = NULL;
     Head_ptr = Current_ptr->Next_ptr;
@@ -159,6 +201,10 @@ void List::remove() {
     delete Victim_ptr;
     return;
   }
+  
+  //if the victim has neightbors, point current's previous's next to
+  //current's previous, point current's next's previous to current's next, 
+  //point current to current's next and delete
   else {
     Current_ptr->Next_ptr->Prev_ptr = Current_ptr->Prev_ptr;
     Current_ptr->Prev_ptr->Next_ptr = Current_ptr->Next_ptr;
@@ -241,6 +287,10 @@ void List::copy(const List& list) {
 // Pre: None.
 // Post: None.
 void List::display(ostream& s) const {
+
+  //should display like this (if a list has elements 1, 2, 3):
+  //[1, 2, 3]
+
   s << "[";
   if (empty()) {
     s << "]";
