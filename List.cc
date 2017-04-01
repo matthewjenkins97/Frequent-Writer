@@ -233,9 +233,6 @@ void List::head() {
 // Post: The current location points to the next location in the list
 void List::advance() {
   assert(currentDefined());
-  if (Current_ptr->Next_ptr == NULL) {
-    Current_ptr = NULL;
-  }
   Current_ptr = Current_ptr->Next_ptr;
 }
 
@@ -280,6 +277,7 @@ void List::copy(const List& list) {
   for (Node* temp = list.Head_ptr; temp != NULL; temp = temp->Next_ptr) {
     insertAfter(temp->Value);
   }
+  head();
 }
 
 // Purpose: Output the list to the stream.

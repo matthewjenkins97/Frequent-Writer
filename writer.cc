@@ -70,4 +70,5 @@ int main(int argc, char** argv) {
     prefix = prefix.substr(1);
     prefix = prefix + finalChar;
   }
+  cout << endl;
 }
