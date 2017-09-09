@@ -12,16 +12,32 @@
  *****************************************************************************/
 
 #include <iostream>
-#include "cs111.h"
 #include "List.h"
 #include <string>
+#include <fstream>
 using namespace std;
 
 int main(int argc, char** argv) {
+  if (argc != 4) {
+    cout << "USAGE: prefixLength textLength corpus" << endl;
+    return 1;
+  }
   int prefixLength;
   int textLength;
   string corpus;
-  loadCorpus(argc, argv, prefixLength, textLength, corpus);
+  string line;
+
+  prefixLength = atoi(argv[1]);
+  textLength = atoi(argv[2]);
+
+  ifstream myfile;
+  myfile.open(argv[3]);
+  if (myfile.is_open()) {
+    while (getline(myfile, line)) {
+      corpus = corpus + line;
+    }
+  }
+  myfile.close();
 
   //generating prefix
   string prefix = "";
@@ -58,7 +74,8 @@ int main(int argc, char** argv) {
 
     //take a random character from the list and output it
     prefixChars.head();
-    for (unsigned int i = 0; i < cs111::random(prefixChars.length()); i++) {
+    int randNum = rand() % prefixChars.length();
+    for (unsigned int i = 0; i < randNum; i++) {
       prefixChars.advance();
     }
     char finalChar = prefixChars.retrieve();

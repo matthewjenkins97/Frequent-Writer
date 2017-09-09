@@ -12,8 +12,7 @@
 
 #include "List.h"
 #include <iostream>
-#include <assert.h>
-#include <cs111.h>
+#include <cassert>
 using namespace std;
 
 //Private Functions

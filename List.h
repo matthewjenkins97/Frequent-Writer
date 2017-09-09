@@ -13,14 +13,13 @@
  *
  *****************************************************************************/
 
-#include <cs111.h>
 #include <iostream>
 using namespace std;
 
-class List : public cs111Object {
+class List {
  public:
   typedef char Item;
-  class Node : public cs111Object {
+  class Node {
   public:
     // Purpose: Creates a node class.
     //
